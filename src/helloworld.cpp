@@ -8,8 +8,10 @@ int main(){
 
     // Create channel
     int prn = 1;
+    int channelID = 0;
     st_ChannelConfig config;
-    Channel channel(prn, &config);
+    Channel channel(channelID, &config);
+    channel.setSatellite(prn);
 
     return 0;
 }
