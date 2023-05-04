@@ -63,8 +63,8 @@ Channel::~Channel(){
 
 void Channel::setSatellite(int satelliteID){
     m_satelliteID = satelliteID;
-    generateCAcode(m_config->signalConfig, m_code, m_satelliteID);
-    cout << "Channel created PRN " << m_satelliteID << endl;
+    generateCAcode(m_satelliteID, m_code);
+    cout << "Channel initialised with PRN " << m_satelliteID << endl;
 }
 
 // ----------------------------------------------------------------------------

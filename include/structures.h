@@ -1,13 +1,5 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
-/// ===========================================================================
-
-struct st_SignalConfig{
-    double samplingFreq;
-    double codeFreqBasis;
-    double codeLength;
-};
-
 
 /// ===========================================================================
 
@@ -27,6 +19,14 @@ typedef enum {
     TRACKING_UPDATE,
     DECODING_UPDATE
 } ChannelMessage;
+
+/// ===========================================================================
+
+struct st_SignalConfig{
+    double samplingFreq;
+    double codeFreqBasis;
+    double codeLength;
+};
 
 /// ===========================================================================
 

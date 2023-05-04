@@ -27,7 +27,7 @@ class Channel{
 
         
         // Constructor
-        Channel(int channelID, st_ChannelConfig* config);
+        Channel(int, st_ChannelConfig*);
 
         // Destructor
         ~Channel();

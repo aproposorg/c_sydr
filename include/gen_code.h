@@ -40,10 +40,7 @@
  * Public Function Declarations
  ***********************************/
 
-void generateCAcode(
-  const st_SignalConfig* settings,
-  double* caCode, int PRN
-);
+void generateCAcode(int PRN, double* caCode);
 
 void makeCaTable(
   const st_SignalConfig* settings, 
