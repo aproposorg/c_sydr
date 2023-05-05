@@ -34,6 +34,9 @@ struct st_ChannelConfig {
 
     st_SignalConfig* signalConfig;
 
+    // Acquisition
+    const int acqRequiredSamples;
+
 };
 
 /// ===========================================================================

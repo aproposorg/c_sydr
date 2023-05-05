@@ -21,43 +21,44 @@ Channel::~Channel(){
 // ----------------------------------------------------------------------------
 // General processing
 
-// void Channel::run(complex<double>* _rfdata){
+void Channel::run(complex<double>* _rfdata, size_t size){
 
-//     rfdata = _rfdata;
+    rfdata = _rfdata;
+    rfdataSize = size;
 
-//     // Proccess new data
-//     processHandler();
+    // Proccess new data
+    processHandler();
 
-//     // Channel update
-//     prepareChannelUpdate();
+    // Channel update
+    //prepareChannelUpdate();
 
-//     return;
-// }
+    return;
+}
 
 // ----------------------------------------------------------------------------
 
-// void Channel::processHandler(){
+void Channel::processHandler(){
 
-//     // Select processing based on current state
-//     switch (m_channelState)
-//     {
-//     case IDLE:
-//         // TODO Warning
-//         break;
-//     case ACQUIRING:
-//         runAcquisition();
-//         break;
-//     case TRACKING:
-//         runTracking();
-//         runDecoding();
-//         break;
-//     default:
-//         // TODO Error
-//         break;
-//     }
+    // Select processing based on current state
+    switch (m_channelState)
+    {
+    case IDLE:
+        // TODO Warning
+        break;
+    case ACQUIRING:
+        runAcquisition();
+        break;
+    case TRACKING:
+        //runTracking();
+        //runDecoding();
+        break;
+    default:
+        // TODO Error
+        break;
+    }
 
-//     return;
-// }
+    return;
+}
 
 // ----------------------------------------------------------------------------
 
@@ -68,3 +69,23 @@ void Channel::setSatellite(int satelliteID){
 }
 
 // ----------------------------------------------------------------------------
+// ACQUISITION METHODS
+
+void Channel::runAcquisition(){
+
+    // Check if sufficient data in buffer
+    if (rfdataSize < m_config->acqRequiredSamples){
+        // Not enough samples
+        return;
+    }
+
+    // Perform signal search 
+
+    
+}
+
+// ----------------------------------------------------------------------------
+
+void Channel::runSignalSearch(){
+    
+}

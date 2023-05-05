@@ -16,6 +16,7 @@ class Channel{
 
     private:
         complex<double>* rfdata;
+        size_t rfdataSize;
     
     public:
         int m_channelID;
@@ -33,7 +34,7 @@ class Channel{
         ~Channel();
 
         // General processing
-        void run(complex<double>* _rfdata);
+        void run(complex<double>* _rfdata, size_t size);
         void processHandler();
         void setSatellite(int satelliteID);
         void getTimeSinceTOW();
