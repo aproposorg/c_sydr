@@ -1,3 +1,6 @@
 
 
 #define PI 3.1415926535898 // GPS definition of Pi
+
+#define GPS_L1CA_CODE_SIZE_BITS 1023
+#define GPS_L1CA_CODE_FREQ 1.023e6

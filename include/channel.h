@@ -2,8 +2,12 @@
 #define CHANNEL_H
 
 #include <iostream>
-#include <complex>
+#include <ccomplex>
 #include "gen_code.h"
+#include "acquisition.h"
+#include "structures.h"
+#include <cstring>
+#include <Eigen/Dense>
 
 #define RESULTS_SIZE 32
 #define PRN_SIZE 1024
@@ -15,8 +19,8 @@ using namespace std;
 class Channel{
 
     private:
-        complex<double>* rfdata;
-        size_t rfdataSize;
+        Eigen::MatrixXcd m_rfdata;
+        size_t m_rfdataSize;
     
     public:
         int m_channelID;
@@ -26,6 +30,8 @@ class Channel{
         double m_code[PRN_SIZE];
         st_ChannelConfig* m_config;
 
+        int codeOffset;
+        double carrierFrequency;
         
         // Constructor
         Channel(int, st_ChannelConfig*);
@@ -43,8 +49,8 @@ class Channel{
 
         // Acquisition
         void runAcquisition();
-        void runSignalSearch();
-        void runPeakFinder();
+        void runSignalSearch(double*);
+        void runPeakFinder(double*, size_t);
         void postAcquisitionUpdate();
         void prepareResultsAcquisition();
 
@@ -73,3 +79,9 @@ class Channel{
 
 #endif
 
+// ====================================================================================================================
+
+template <typename D, typename S> std::complex<D> cast(const std::complex<S> s)
+{
+    return std::complex<D>(s.real(), s.imag());
+}

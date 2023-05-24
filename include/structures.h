@@ -23,19 +23,28 @@ typedef enum {
 /// ===========================================================================
 
 struct st_SignalConfig{
+    //RF 
     double samplingFreq;
+    double intermediateFreq;
+
+    // GNSS
     double codeFreqBasis;
-    double codeLength;
+    int codeLengthBits;
 };
 
 /// ===========================================================================
 
 struct st_ChannelConfig {
 
-    st_SignalConfig* signalConfig;
+    // General
+    st_SignalConfig* signalConfig; // RF and GNSS signal parameters
+    int bufferSize; 
 
     // Acquisition
-    const int acqRequiredSamples;
+    int acqRequiredSamples;
+    int dopplerRange;
+    int dopplerStep;
+    float acqThreshold;
 
 };
 
