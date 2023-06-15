@@ -7,13 +7,13 @@
 #include <cmath>
 #include "constants.h"
 #include "Eigen/Dense"
+#include "fft.h"
 
 using namespace std;
 
 void SerialSearch(Eigen::MatrixXcd, size_t, double*, int, int, float, double*);
 void TwoCorrelationPeakComparison(double*, size_t, int*, float*);
 int  FindMaxIndex(double*, size_t, int);
-
 
 // struct pad {
 //   Index size() const { return out_size; }

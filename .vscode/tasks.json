@@ -5,10 +5,12 @@
             "label": "C/C++: g++ build active file",
             "command": "/usr/bin/g++",
             "args": [
+                "-Drestrict=__restrict__",
                 "-fdiagnostics-color=always",
                 "-g",
                 "-I${workspaceFolder}/include",
                 "${workspaceFolder}/src/*.cpp",
+                "${workspaceFolder}/src/*.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

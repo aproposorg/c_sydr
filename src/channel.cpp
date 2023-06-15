@@ -124,6 +124,7 @@ void Channel::runPeakFinder(double* acqCorrelationMap, size_t sizeMap){
     float acqMetric = 0.0; 
 
     // Find the correlation
+    cout << acqCorrelationMap[0] << endl;
     TwoCorrelationPeakComparison(acqCorrelationMap, sizeMap, &idxPeak, &acqMetric);
 
     // Check if peak is above threshold
