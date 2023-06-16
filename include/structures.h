@@ -44,6 +44,8 @@ struct st_ChannelConfig {
     int acqRequiredSamples;
     int dopplerRange;
     int dopplerStep;
+    int cohIntegration;   // Coherent integration
+    int nonCohIntegration; // Non coherent integration
     float acqThreshold;
 
 };

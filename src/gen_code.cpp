@@ -23,7 +23,7 @@ static const short s_g2Shifts[33] = { 0, 5, 6, 7, 8, 17, 18, 139, 140, 141, 251,
 
 // ----------------------------------------------------------------------------
 
-void generateCAcode(int PRN, double* caCode)
+void generateCAcode(int PRN, int* caCode)
 {
     int reg1[10] = { 1,1,1,1,1,1,1,1,1,1 };
     int reg2[10] = { 1,1,1,1,1,1,1,1,1,1 };
@@ -85,7 +85,7 @@ void generateCAcode(int PRN, double* caCode)
     }
 
     for (nx = 0; nx < 1023; nx++) {
-        caCode[nx] = g1[nx] == g2b[nx] ? (double)-1.0 : (double)1.0;
+        caCode[nx] = g1[nx] == g2b[nx] ? -1 : 1;
     }
 
 }

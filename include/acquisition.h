@@ -6,14 +6,16 @@
 #include <complex>
 #include <cmath>
 #include "constants.h"
-#include "Eigen/Dense"
+//#include "Eigen/Dense"
 #include "fft.h"
+#include "utils.h"
 
 using namespace std;
 
-void SerialSearch(Eigen::MatrixXcd, size_t, double*, int, int, float, double*);
-void TwoCorrelationPeakComparison(double*, size_t, int*, float*);
-int  FindMaxIndex(double*, size_t, int);
+//void SerialSearch(Eigen::MatrixXcd, size_t, double*, int, int, float, double*);
+void TwoCorrelationPeakComparison(float*, size_t, int*, float*);
+int  FindMaxIndex(float*, size_t, int);
+void PCPS(double*, size_t, int*, size_t, double, int, int, double, double, int, int, float*);
 
 // struct pad {
 //   Index size() const { return out_size; }

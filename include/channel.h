@@ -7,7 +7,7 @@
 #include "acquisition.h"
 #include "structures.h"
 #include <cstring>
-#include <Eigen/Dense>
+//#include <Eigen/Dense>
 
 #define RESULTS_SIZE 32
 #define PRN_SIZE 1024
@@ -19,7 +19,7 @@ using namespace std;
 class Channel{
 
     private:
-        Eigen::MatrixXcd m_rfdata;
+        double* m_rfdata;
         size_t m_rfdataSize;
     
     public:
@@ -27,11 +27,11 @@ class Channel{
         int m_satelliteID;
         int m_channelState;
         double m_results[RESULTS_SIZE];
-        double m_code[PRN_SIZE];
+        int m_code[PRN_SIZE];
         st_ChannelConfig* m_config;
 
-        int codeOffset;
-        double carrierFrequency;
+        int m_codeOffset;
+        double m_carrierFrequency;
         
         // Constructor
         Channel(int, st_ChannelConfig*);
@@ -40,7 +40,7 @@ class Channel{
         ~Channel();
 
         // General processing
-        void run(complex<double>* _rfdata, size_t size);
+        void run(double* _rfdata, size_t size);
         void processHandler();
         void setSatellite(int satelliteID);
         void getTimeSinceTOW();
@@ -49,8 +49,8 @@ class Channel{
 
         // Acquisition
         void runAcquisition();
-        void runSignalSearch(double*);
-        void runPeakFinder(double*, size_t);
+        void runSignalSearch(float*);
+        void runPeakFinder(float*, size_t);
         void postAcquisitionUpdate();
         void prepareResultsAcquisition();
 

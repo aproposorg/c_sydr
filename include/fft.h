@@ -1,19 +1,12 @@
 
+#ifndef FFH_H
+#define FFH_H
+
 #include "pocketfft.h"
 
-void fft(double* signal, const size_t size)
-{
-    cfft_plan plan = make_cfft_plan (size);
-    cfft_forward(plan, signal, 1.);
-    destroy_cfft_plan (plan);
-    return;
-}
+void cfft(double*, const size_t);
+void cifft(double*, const size_t);
+void rfft(double*, const size_t);
+void rifft(double*, const size_t);
 
-
-void ifft(double* signal, const size_t size)
-{
-    cfft_plan plan = make_cfft_plan (size);
-    cfft_backward(plan, signal, 1./size);
-    destroy_cfft_plan (plan);
-    return;
-}
+#endif
