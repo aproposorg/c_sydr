@@ -13,8 +13,9 @@
 using namespace std;
 
 //void SerialSearch(Eigen::MatrixXcd, size_t, double*, int, int, float, double*);
-void TwoCorrelationPeakComparison(float*, size_t, int*, float*);
-int  FindMaxIndex(float*, size_t, int);
+void TwoCorrelationPeakComparison(float*, size_t, int, int, int*, float*);
+int  FindMaxIndex(float*, size_t);
+int  FindMaxIndexWithExclude(float*, size_t, int, int);
 void PCPS(double*, size_t, int*, size_t, double, int, int, double, double, int, int, float*);
 
 // struct pad {

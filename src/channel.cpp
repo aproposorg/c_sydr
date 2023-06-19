@@ -123,9 +123,10 @@ void Channel::runPeakFinder(float* acqCorrelationMap, size_t sizeMap){
     float acqMetric = 0.0;
 
     int samplesPerCode = m_config->signalConfig->samplingFreq * GPS_L1CA_CODE_SIZE_BITS / GPS_L1CA_CODE_FREQ;    
+    int samplesPerCodeChip = ceil((float) samplesPerCode / GPS_L1CA_CODE_SIZE_BITS); // Code per chip round up to the next integer
 
     // Find the correlation
-    TwoCorrelationPeakComparison(acqCorrelationMap, sizeMap, &idxPeak, &acqMetric);
+    TwoCorrelationPeakComparison(acqCorrelationMap, sizeMap, samplesPerCode, samplesPerCodeChip, &idxPeak, &acqMetric);
 
     // Check if peak is above threshold
     if(acqMetric < m_config->acqThreshold){
@@ -145,3 +146,7 @@ void Channel::runPeakFinder(float* acqCorrelationMap, size_t sizeMap){
     }
     return;
 }
+
+// ----------------------------------------------------------------------------
+// TRACKING METHODS
+
