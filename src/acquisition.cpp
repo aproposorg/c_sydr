@@ -11,7 +11,7 @@ void TwoCorrelationPeakComparison(float* correlationMap, size_t sizeMap, int sam
     // Find largest value
     int idxPeak1 = FindMaxIndex(correlationMap, sizeMap);
     
-    // Find second largest
+    // Find second largest in the same frequency
     int startIdx = (int) idxPeak1 - (idxPeak1 % samplesPerCode);
     int idxPeak2 = FindMaxIndexWithExclude((float*)(correlationMap + startIdx), samplesPerCode, 
                                            idxPeak1 % samplesPerCode, samplesPerCodeChip);
@@ -71,19 +71,11 @@ void PCPS(double* rfdata,
 {
     // Initialise some variables
     int samplesPerCode = samplingFrequency * sizeCode / codeFrequency;
-    double phasePoints[cohIntegration * samplesPerCode];
-    complex<double> signalCarrier[cohIntegration * samplesPerCode];
-    double iqSignal[cohIntegration * samplesPerCode * 2];
-
+    double iqSignal[samplesPerCode * 2];
     double nonCohSum[samplesPerCode];
     complex<double> cohSum[samplesPerCode];
 
     int dopplerBins = dopplerRange * 2 / dopplerStep + 1;
-
-    // Define replica phase points
-    for (size_t i=0; i < cohIntegration * samplesPerCode; i++){
-        phasePoints[i] = (i << 1) * PI / samplingFrequency;
-    }
 
     // Prepare code FFT
     double codeUpsampled[samplesPerCode];
@@ -110,25 +102,12 @@ void PCPS(double* rfdata,
     {
         freq -= interFrequency;
 
-        // Generate carrier replica
-        for (size_t j=0; j < cohIntegration * samplesPerCode; j++){
-            signalCarrier[j] = exp(-1i * freq * phasePoints[j]);
-        }
-
         // Non-coherent integration loop
         for (size_t j=0; j < samplesPerCode; j++){
             nonCohSum[j] = 0; // Reset non-coherent integration sum
         }
         for (size_t nonCohIdx=0; nonCohIdx < nonCohIntegration; nonCohIdx++)
         {
-            // Mix the carrier with the required part of the data
-            for (size_t j=0; j < cohIntegration * samplesPerCode; j++){
-                int _idx = j + nonCohIdx * cohIntegration * samplesPerCode;
-                complex<double> _complex = signalCarrier[j] * (rfdata[2*_idx] + 1i * rfdata[2*_idx+1]);
-                iqSignal[2*j] = real(_complex);
-                iqSignal[2*j+1] = imag(_complex);
-            }
-
             // Coherent integration loop
             for (size_t j=0; j < samplesPerCode; j++)
             {
@@ -136,12 +115,25 @@ void PCPS(double* rfdata,
             }
             for (size_t cohIdx=0; cohIdx < cohIntegration; cohIdx++)
             {
+                 // Mix the carrier with the required part of the data
+                for (size_t j=0; j < samplesPerCode; j++){
+
+                    // Generate carrier
+                    double phasePoints = ((cohIdx * samplesPerCode + j) << 1) * PI / samplingFrequency;
+                    complex<double> signalCarrier = exp(-1i * freq * phasePoints);
+                    
+                    // Mix
+                    int _idx = j + (nonCohIdx * cohIntegration + cohIdx) * samplesPerCode;
+                    complex<double> _complex = signalCarrier * (rfdata[2*_idx] + 1i * rfdata[2*_idx+1]);
+                    iqSignal[2*j] = real(_complex);
+                    iqSignal[2*j+1] = imag(_complex);
+                }
+
                 // Perform FFT (in-place)
-                cfft((double*)(iqSignal + cohIdx * samplesPerCode), samplesPerCode);
+                cfft(iqSignal, samplesPerCode);
 
                 // Correlate with C/A code (in-place)
                 for (size_t j=0; j < samplesPerCode; j++){
-                    int _idx = j + nonCohIdx * cohIntegration * samplesPerCode;
                     complex<double> _complex = iqSignal[2*j] + 1i * iqSignal[2*j+1];
                     _complex *= codeFFT[j];
                     iqSignal[2*j] = real(_complex);
@@ -149,9 +141,11 @@ void PCPS(double* rfdata,
                 }
 
                 // Perform IFFT
-                cifft((double*)(iqSignal + cohIdx * samplesPerCode), samplesPerCode);
+                cifft(iqSignal, samplesPerCode);
+
+                // Sum coherent integration
                 for (size_t j=0; j < samplesPerCode; j++)
-                    cohSum[j] += ((complex<double>*)(iqSignal + cohIdx * samplesPerCode))[j];
+                    cohSum[j] += ((complex<double>*)iqSignal)[j];
             }
             for (size_t j=0; j < samplesPerCode; j++)
                 nonCohSum[j] += abs(cohSum[j]);

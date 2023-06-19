@@ -79,14 +79,16 @@ void Channel::setSatellite(int satelliteID){
 
 void Channel::runAcquisition(){
 
+    int samplesPerCode = m_config->signalConfig->samplingFreq * GPS_L1CA_CODE_SIZE_BITS / GPS_L1CA_CODE_FREQ;
+
     // Check if sufficient data in buffer
-    if (m_rfdataSize < m_config->acqRequiredSamples){
+    int requiredSamples = (int) (samplesPerCode * m_config->cohIntegration * m_config->nonCohIntegration);
+    if (m_rfdataSize < requiredSamples){
         // Not enough samples
         return;
     }
 
     // Initialise arrays
-    int samplesPerCode = m_config->signalConfig->samplingFreq * GPS_L1CA_CODE_SIZE_BITS / GPS_L1CA_CODE_FREQ;
     int sizeMap = (m_config->dopplerRange * 2 / m_config->dopplerStep + 1) * samplesPerCode;
     float acqCorrelationMap[sizeMap];
     memset(acqCorrelationMap, 0, sizeMap); // init to 0 

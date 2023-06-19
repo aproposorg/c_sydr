@@ -41,7 +41,6 @@ struct st_ChannelConfig {
     int bufferSize; 
 
     // Acquisition
-    int acqRequiredSamples;
     int dopplerRange;
     int dopplerStep;
     int cohIntegration;   // Coherent integration

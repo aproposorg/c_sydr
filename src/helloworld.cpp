@@ -21,9 +21,8 @@ int main(){
     st_ChannelConfig channelConfig;
     channelConfig.bufferSize = 10000;
     channelConfig.dopplerRange = 5000;
-    channelConfig.dopplerStep = 250;
+    channelConfig.dopplerStep = 100;
     channelConfig.acqThreshold = 1.0;
-    channelConfig.acqRequiredSamples = 10000;
     channelConfig.cohIntegration = 1;
     channelConfig.nonCohIntegration = 1;
     channelConfig.signalConfig = &signalConfig;
@@ -35,7 +34,7 @@ int main(){
     channel.setSatellite(prn);
 
     // Read 1 millisecond
-    int size1ms = 10000;
+    int size1ms = 100000;
     string filepath = "/mnt/c/Users/vmangr/Documents/Datasets/2021_11_30-TAU_Roof_Antenna_Tallysman/Novatel_20211130_resampled_10MHz_8bit_IQ_gain25.bin";
     ifstream ifs(filepath, ios::binary | ios::in);
     vector<complex<int8_t>> v(size1ms);
