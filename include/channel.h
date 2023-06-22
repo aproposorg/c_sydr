@@ -29,6 +29,10 @@ class Channel{
         int* m_rfdata;
         size_t m_rfdataSize;
 
+        // Acquisition
+        float m_acqMetric;
+        int m_indexPeak;
+
         // Tracking
         bool m_isTrackingInitialised;
         int m_trackRequiredSamples;
@@ -78,9 +82,6 @@ class Channel{
         void run(int* _rfdata, size_t size);
         void processHandler();
         void setSatellite(int satelliteID);
-        void getTimeSinceTOW();
-        void prepareChannelUpdate();
-        double* prepareResults();
         void resetChannel();
         void resetCounters();
 
@@ -89,7 +90,6 @@ class Channel{
         void runSignalSearch(float*);
         void runPeakFinder(float*, size_t);
         void postAcquisitionUpdate();
-        void prepareResultsAcquisition();
 
         // Tracking
         void initTracking();

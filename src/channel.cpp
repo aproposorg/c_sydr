@@ -38,9 +38,6 @@ void Channel::run(int* _rfdata, size_t size){
     // Proccess new data
     processHandler();
 
-    // Channel update
-    //prepareChannelUpdate();
-
     return;
 }
 
@@ -117,6 +114,7 @@ void Channel::resetCounters(){
     m_qPromptSum = 0.0;
     m_nbPromptSum = 0;
     m_codeCounter = 0;
+    m_pdpnRatio = 0.0;
 }
 
 // ----------------------------------------------------------------------------
@@ -143,7 +141,11 @@ void Channel::runAcquisition(){
 
     // Perform peak finding
     runPeakFinder(acqCorrelationMap, sizeMap);
+
+    // Post acquisition update
+    postAcquisitionUpdate();
     
+    return;
 }
 
 // ----------------------------------------------------------------------------
@@ -172,35 +174,37 @@ void Channel::runSignalSearch(float* r_correlation){
 
 void Channel::runPeakFinder(float* acqCorrelationMap, size_t sizeMap){
 
-    int idxPeak = 0.0;
-    float acqMetric = 0.0;
-
     int samplesPerCode = m_config->signalConfig->samplingFreq * GPS_L1CA_CODE_SIZE_BITS / GPS_L1CA_CODE_FREQ;    
     int samplesPerCodeChip = ceil((float) samplesPerCode / GPS_L1CA_CODE_SIZE_BITS); // Code per chip round up to the next integer
 
     // Find the correlation
-    TwoCorrelationPeakComparison(acqCorrelationMap, sizeMap, samplesPerCode, samplesPerCodeChip, &idxPeak, &acqMetric);
+    TwoCorrelationPeakComparison(acqCorrelationMap, sizeMap, samplesPerCode, samplesPerCodeChip, &m_indexPeak, &m_acqMetric);
+
+    return;
+}
+
+// ----------------------------------------------------------------------------
+
+void Channel::postAcquisitionUpdate(){
+
+    int samplesPerCode = m_config->signalConfig->samplingFreq * GPS_L1CA_CODE_SIZE_BITS / GPS_L1CA_CODE_FREQ;  
 
     // Check if peak is above threshold
-    if(acqMetric < m_config->acqThreshold){
+    if(m_acqMetric < m_config->acqThreshold){
         // TODO Should count the number of try an only deactivate later
         m_channelState = IDLE;
     }
     else{
         // Unravel index
-        int idxFreq = (int) floor(idxPeak / samplesPerCode);
+        int idxFreq = (int) floor(m_indexPeak / samplesPerCode);
         float dopplerShift = (-m_config->dopplerRange) + m_config->dopplerStep * idxFreq;
-        
-        // Check if acquisition is succesfull
-        if(acqMetric > m_config->acqThreshold){
 
-            m_carrierFrequency = m_config->signalConfig->intermediateFreq + dopplerShift;
-            m_codeOffset = int(idxPeak % samplesPerCode) + 1;
-            m_channelState = TRACKING;
+        m_carrierFrequency = m_config->signalConfig->intermediateFreq + dopplerShift;
+        m_codeOffset = int(m_indexPeak % samplesPerCode) + 1;
+        m_channelState = TRACKING;
 
-            cout << "PRN " << m_satelliteID << " successfully acquired: " 
-                 << m_carrierFrequency << ", " << m_codeOffset << ", " << acqMetric << endl;
-        }
+        cout << "PRN " << m_satelliteID << " successfully acquired: " 
+                << m_carrierFrequency << ", " << m_codeOffset << ", " << m_acqMetric << endl;
     }
     return;
 }
@@ -291,10 +295,14 @@ void Channel::runLoopIndicators(){
 
     // CN0
     m_pdpnRatio += (m_correlatorsResults[I_PROMPT_IDX] * m_correlatorsResults[I_PROMPT_IDX] 
-                  + m_correlatorsResults[Q_PROMPT_IDX] * m_correlatorsResults[Q_PROMPT_IDX]); 
-    m_pdpnRatio /= pow(abs(m_correlatorsResults[I_PROMPT_IDX]) - abs(m_correlatorsResults[Q_PROMPT_IDX]), 2);
+                  + m_correlatorsResults[Q_PROMPT_IDX] * m_correlatorsResults[Q_PROMPT_IDX])
+                  / pow(abs(m_correlatorsResults[I_PROMPT_IDX]) - abs(m_correlatorsResults[Q_PROMPT_IDX]), 2);
     
-    CN0_Baulieu(m_pdpnRatio, m_cn0, m_nbPromptSum, m_config->cn0Alpha);
+    if(m_nbPromptSum == LNAV_MS_PER_BIT){
+        m_cn0 = CN0_Baulieu(m_pdpnRatio, m_cn0, m_nbPromptSum, m_config->cn0Alpha);
+        m_pdpnRatio = 0.0;
+        m_nbPromptSum = 0;
+    }
 
     return;
 }
