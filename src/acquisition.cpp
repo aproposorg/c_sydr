@@ -80,7 +80,7 @@ void PCPS(double* rfdata,
     // Prepare code FFT
     double codeUpsampled[samplesPerCode];
     complex<double> codeFFT[samplesPerCode];
-    upsampleCode(code, sizeCode, GPS_L1CA_CODE_FREQ, samplingFrequency, codeUpsampled); // Upsampling code to sampling frequency
+    upsampleCode(code, GPS_L1CA_CODE_SIZE_BITS, GPS_L1CA_CODE_FREQ, samplingFrequency, codeUpsampled); // Upsampling code to sampling frequency
     rfft(codeUpsampled, samplesPerCode); // in-place FFT
 
     // Need to reconstruct the real-to-complex FFT, as pocket FFT only compute the real part

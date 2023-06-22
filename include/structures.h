@@ -47,6 +47,21 @@ struct st_ChannelConfig {
     int nonCohIntegration; // Non coherent integration
     float acqThreshold;
 
+    // Tracking
+    float correlatorSpacing;
+    float dllNoiseBW;
+    float dllDampRatio;
+    float dllLoopGain;
+    float dllPDI;
+    float pllNoiseBW;
+    float pllDampRatio;
+    float pllLoopGain;
+    float pllPDI;
+
+    // Inidicators
+    float pllIndicatorAlpha;  // Low-pass smoother coefficient
+    float cn0Alpha;
+
 };
 
 /// ===========================================================================
