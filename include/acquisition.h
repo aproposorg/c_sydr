@@ -6,7 +6,6 @@
 #include <complex>
 #include <cmath>
 #include "constants.h"
-//#include "Eigen/Dense"
 #include "fft.h"
 #include "utils.h"
 

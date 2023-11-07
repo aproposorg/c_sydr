@@ -58,8 +58,14 @@ int main(){
 
     // Play RF file, 10MHz sampling rate, 8 bit quantization, I/Q interleaved
     // Reading and recasting is very inefficient but this is just for debugging purposes
-    string filepath = "/mnt/c/Users/vmangr/Documents/Datasets/2021_11_30-TAU_Roof_Antenna_Tallysman/Novatel_20211130_resampled_10MHz_8bit_IQ_gain25.bin";
+    string filepath = "/mnt/c/Users/vmangr/Documents/Datasets/2021_11_30-TAU_Roof_Antenna_Novatel/Novatel_20211130_resampled_10MHz_8bit_IQ_gain25.bin";
     ifstream ifs(filepath, ios::binary | ios::in);
+    // Check if file exist
+    if(!ifs){
+        cout << "ERROR: file could not be found. Exiting. " << endl;
+        return -1;
+    }
+
     int size1ms = 10000 * 2;
     int8_t rfdata_int8[size1ms];
     int rfdata[size1ms * 2]; // Storing 2ms
