@@ -1,4 +1,4 @@
 bin/
 build/
-src/helloworld
-src/acquisition
+data/
+launch

@@ -12,19 +12,18 @@
 
 using namespace std;
 
-//void SerialSearch(Eigen::MatrixXcd, size_t, double*, int, int, float, double*);
-void TwoCorrelationPeakComparison(float*, size_t, int, int, int*, float*);
-int  FindMaxIndex(float*, size_t);
-int  FindMaxIndexWithExclude(float*, size_t, int, int);
-void PCPS(double*, size_t, int*, size_t, double, int, int, double, double, int, int, float*);
+template<typename T>
+size_t FindMaxIndex(const T*, size_t);
 
-// struct pad {
-//   Index size() const { return out_size; }
-//   Index operator[] (Index i) const { return std::max<Index>(0,i-(out_size-in_size)); }
-//   Index in_size, out_size;
-// };
- 
+template<typename T>
+size_t FindMaxIndexWithExclude(const T*, size_t, size_t, size_t);
+
+void TwoCorrelationPeakComparison(const float*, size_t, size_t, size_t, size_t*, float*);
+
+void PCPS(const int*, size_t, const char*, size_t, double, size_t, size_t, double, double, size_t, size_t, float*);
+
+void NoMapPCPS(const int*, size_t, const char *, size_t, double, size_t, size_t, double, double, size_t, size_t, size_t*, float*);
+
+// void SerialSearch(Eigen::MatrixXcd, size_t, double*, int, int, float, double*);
 
 #endif
-
-

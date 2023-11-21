@@ -1,6 +1,6 @@
 
-#ifndef FFH_H
-#define FFH_H
+#ifndef FFT_H
+#define FFT_H
 
 #include "pocketfft.h"
 

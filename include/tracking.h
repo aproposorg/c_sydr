@@ -1,3 +1,4 @@
+
 #ifndef TRACKING_H
 #define TRACKING_H
 
@@ -11,30 +12,19 @@
 using namespace std;
 
 // Correlators
-void EPL(int* rfdata,
-        int nbSamples,
-        int* code,
-        size_t sizeCode,
-        double samplingFrequency,
-        double carrierFrequency,
-        double remainingCarrier,
-        double remainingCode,
-        double codeStep,
-        double correlatorsSpacing,
-        double* r_correlatorsResults);
+void EPL(const int*, size_t, const char*, size_t, double, double, double, double, double, double, double*);
 
 // Lock loops
-double DLL_NNEML(double iEarly, double qEarly, double iLate, double qLate);
-double PLL_costa(double iPrompt, double qPrompt);
+double DLL_NNEML(double, double, double, double);
+double PLL_costa(double, double);
 
 // Discriminators
-double LoopFilterTau1(double loopNoiseBandwidth, double dampingRatio, double loopGain);
-double LoopFilterTau2(double loopNoiseBandwidth, double dampingRatio, double loopGain);
-double BorreLoopFilter(double input, double memory, double tau1, double tau2, double pdi);
+double LoopFilterTau1(double, double, double);
+double LoopFilterTau2(double, double, double);
+double BorreLoopFilter(double, double, double, double, double);
 
 // Indicators
-double PLLIndicator(double iprompt, double qprompt, double previous, double alpha);
-double CN0_Baulieu(double pdpnRatio, double previous, double nbSamples, double alpha);
- 
+double PLLIndicator(double, double, double, double);
+double CN0_Baulieu(double, double, double, double);
 
 #endif

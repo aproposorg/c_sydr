@@ -64,6 +64,7 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "constants.h": "c"
+        "constants.h": "c",
+        "numbers": "cpp"
     }
 }

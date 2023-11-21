@@ -1,7 +1,7 @@
 #include <iostream>
 #include "fft.h"
 #include <complex>
-#include "gen_code.h"
+#include "constants.h"
 #include "utils.h"
 
 using namespace std;
@@ -39,10 +39,9 @@ int main(){
 
     size = 10000;
     // generate code
-    int code[1023];
+    unsigned prn = 9;
     double upcode[10000];
-    generateCAcode(9, code);
-    upsampleCode(code, 1023, 1.023e6, 10e6, upcode);
+    upsampleCode(GPS_L1CA_CODES.codes[prn-1], 1023, 1.023e6, 10e6, upcode);
 
     double* signal_real = upcode;
 

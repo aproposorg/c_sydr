@@ -1,3 +1,4 @@
+
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
@@ -23,7 +24,7 @@ typedef enum {
 /// ===========================================================================
 
 struct st_SignalConfig{
-    //RF 
+    // RF 
     double samplingFreq;
     double intermediateFreq;
 
@@ -34,17 +35,16 @@ struct st_SignalConfig{
 
 /// ===========================================================================
 
-struct st_ChannelConfig {
-
+struct st_ChannelConfig
+{
     // General
-    st_SignalConfig* signalConfig; // RF and GNSS signal parameters
-    int bufferSize; 
+    st_SignalConfig signalConfig; // RF and GNSS signal parameters
 
     // Acquisition
-    int dopplerRange;
-    int dopplerStep;
-    int cohIntegration;   // Coherent integration
-    int nonCohIntegration; // Non coherent integration
+    size_t dopplerRange;
+    size_t dopplerStep;
+    size_t cohIntegration;   // Coherent integration
+    size_t nonCohIntegration; // Non coherent integration
     float acqThreshold;
 
     // Tracking
@@ -61,7 +61,6 @@ struct st_ChannelConfig {
     // Inidicators
     float pllIndicatorAlpha;  // Low-pass smoother coefficient
     float cn0Alpha;
-
 };
 
 /// ===========================================================================

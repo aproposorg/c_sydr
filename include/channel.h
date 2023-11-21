@@ -1,123 +1,99 @@
+
 #ifndef CHANNEL_H
 #define CHANNEL_H
 
 #include <iostream>
 #include <ccomplex>
-#include "gen_code.h"
 #include "acquisition.h"
 #include "tracking.h"
-#include "structures.h"
-#include <cstring>
+#include "constants.h"
+#include <cassert>
 //#include <Eigen/Dense>
-
-#define RESULTS_SIZE 32
-#define NB_CORRELATORS 3 
-#define I_EARLY_IDX  0
-#define Q_EARLY_IDX  1 
-#define I_PROMPT_IDX 2
-#define Q_PROMPT_IDX 3 
-#define I_LATE_IDX   4
-#define Q_LATE_IDX   5 
 
 /// ===========================================================================
 
 using namespace std;
 
 class Channel{
+private:
+    // Configuration flag
+    bool m_configured {false};
 
-    private:
-        int* m_rfdata;
-        size_t m_rfdataSize;
+    // Acquisition
+    float m_acqMetric;
+    size_t m_indexPeak;
 
-        // Acquisition
-        float m_acqMetric;
-        int m_indexPeak;
+    // Tracking
+    bool m_isTrackingInitialised;
+    size_t m_trackRequiredSamples;
+    double m_iPromptSum;
+    double m_qPromptSum;
+    int m_nbPromptSum;
+    double m_remainingCarrier;
+    double m_remainingCode;
+    double m_pllDiscrim;
+    double m_dllDiscrim;
+    double m_codeError;
+    double m_phaseError;
+    double m_dllTau1;
+    double m_dllTau2;
+    double m_dllPDI;
+    double m_pllTau1;
+    double m_pllTau2;
+    double m_pllPDI;
+    unsigned m_codeCounter;
 
-        // Tracking
-        bool m_isTrackingInitialised;
-        int m_trackRequiredSamples;
-        double m_iPromptSum;
-        double m_qPromptSum;
-        int m_nbPromptSum;
-        double m_remainingCarrier;
-        double m_remainingCode;
-        double m_pllDiscrim;
-        double m_dllDiscrim;
-        double m_codeError;
-        double m_phaseError;
-        double m_dllTau1;
-        double m_dllTau2;
-        double m_dllPDI;
-        double m_pllTau1;
-        double m_pllTau2;
-        double m_pllPDI;
-        int m_codeCounter;
-        
-        // Indicators
-        double m_pllLock;
-        double m_pdpnRatio; // For C/N0 estimation
-        double m_cn0;
-    
-    public:
-        int m_channelID;
-        int m_satelliteID;
-        int m_channelState;
-        double m_results[RESULTS_SIZE];
-        int m_code[GPS_L1CA_CODE_SIZE_BITS+2]; // Code also include the last bit from previous code and first bit from next code for tracking purposes
-        st_ChannelConfig* m_config;
+    // Indicators
+    double m_pllLock;
+    double m_pdpnRatio; // For C/N0 estimation
+    double m_cn0;
 
-        int m_codeOffset;
-        double m_carrierFrequency;
-        double m_codeFrequency;
+    // Channel identification and control
+    int m_channelID{-1};
+    unsigned m_satelliteID;
+    unsigned m_channelState;
+    st_ChannelConfig m_config;
 
-        double m_correlatorsResults[NB_CORRELATORS*2];
-        
-        // Constructor
-        Channel(int, st_ChannelConfig*);
+    // Intermediate results
+    int m_codeOffset;
+    double m_carrierFrequency;
+    double m_codeFrequency;
+    double m_correlatorsResults[NB_CORRELATORS * 2];
 
-        // Destructor
-        ~Channel();
+public:
+    // Constructor
+    Channel();
+    Channel(char, st_ChannelConfig);
 
-        // General processing
-        void run(int* _rfdata, size_t size);
-        void processHandler();
-        void setSatellite(int satelliteID);
-        void resetChannel();
-        void resetCounters();
+    // Destructor
+    ~Channel();
 
-        // Acquisition
-        void runAcquisition();
-        void runSignalSearch(float*);
-        void runPeakFinder(float*, size_t);
-        void postAcquisitionUpdate();
+    // Configuration
+    void setSatellite(unsigned char);
+    void configure(char, st_ChannelConfig);
 
-        // Tracking
-        void initTracking();
-        void runTracking();
-        void runCorrelators();
-        void runDiscriminatorsFilters();
-        void runLoopIndicators();
-        void postTrackingUpdate();
-        void trackingStateUpdate();
-        void runFrequencyDiscriminator();
-        void runPhaseDiscriminator();
-        void runCodeDiscriminator();
-        void prepareResultsTracking();
+    // General processing
+    void run(const int* _rfdata, size_t size);
+    void resetChannel();
+    void resetCounters();
 
-        // Decoding
-        void runDecoding();
-        void decodeBit();
-        void decodeSubframe();
-        void postDecodingUpdate();
-        void prepareResultsDecoding();
+    // Acquisition
+    void runAcquisition(const int*, size_t);
+    void runSignalSearch(const int*, size_t, float*);
+    void runPeakFinder(const float*, size_t);
+    void postAcquisitionUpdate();
+    void runNoMapAcquisition(const int*, size_t);
 
+    // Tracking
+    void initTracking(size_t);
+    void runTracking(const int*, size_t);
+    void runCorrelators(const int*);
+    void runDiscriminatorsFilters();
+    void runLoopIndicators();
+    void postTrackingUpdate();
+    const double* getCorrelatorResults() const {
+        return m_correlatorsResults;
+    }
 };
 
 #endif
-
-// ====================================================================================================================
-
-template <typename D, typename S> std::complex<D> cast(const std::complex<S> s)
-{
-    return std::complex<D>(s.real(), s.imag());
-}
