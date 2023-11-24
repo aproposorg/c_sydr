@@ -24,7 +24,7 @@ int main()
     ifstream ifs("./data/Novatel_20211130_resampled_10MHz_8bit_IQ_gain25.bin", ios::binary);
     if (!ifs) {
         cout << "ERROR: RF data file could not be found. Exiting." << endl;
-        return -1
+        return -1;
     }
 
     // Create data buffers
