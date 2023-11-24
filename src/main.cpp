@@ -22,6 +22,10 @@ int main()
     // Play RF file, 10MHz sampling rate, 8 bit quantization, I/Q interleaved
     // Reading and recasting is very inefficient but this is just for debugging purposes
     ifstream ifs("./data/Novatel_20211130_resampled_10MHz_8bit_IQ_gain25.bin", ios::binary);
+    if (!ifs) {
+        cout << "ERROR: RF data file could not be found. Exiting." << endl;
+        return -1
+    }
 
     // Create data buffers
     size_t size1ms {2 * 10000}, bufferIdx {};
