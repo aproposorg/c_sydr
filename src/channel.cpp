@@ -13,13 +13,13 @@ Channel::Channel()
     cout << "Empty channel created" << endl;
 }
 
-Channel::Channel(char _channelID, st_ChannelConfig _config)
+Channel::Channel(int _channelID, st_ChannelConfig _config)
 {    
     m_channelState = IDLE;
 
     configure(_channelID, _config);
 
-    cout << "Channel created with CID " << (int) _channelID << endl;
+    cout << "Channel created with CID " << m_channelID << endl;
 }
 
 Channel::~Channel()
@@ -30,33 +30,33 @@ Channel::~Channel()
 // ----------------------------------------------------------------------------
 // Configuration
 
-void Channel::setSatellite(unsigned char satelliteID)
+void Channel::setSatellite(unsigned satelliteID)
 {
     m_satelliteID = satelliteID;
 
     m_channelState = ACQUIRING;
     resetChannel();
 
-    cout << "Channel initialised with PRN " << (unsigned int) m_satelliteID << endl;
+    cout << "Channel initialised with PRN " << m_satelliteID << endl;
 }
 
-void Channel::configure(char _channelID, st_ChannelConfig _config)
+void Channel::configure(int _channelID, st_ChannelConfig _config)
 {
     m_channelID = _channelID;
     m_config    = _config;
 
     // Init
     m_dllTau1 = LoopFilterTau1(m_config.dllNoiseBW, m_config.dllDampRatio, m_config.dllLoopGain);
-    m_dllTau2 = LoopFilterTau2(m_config.dllNoiseBW, m_config.dllDampRatio, m_config.dllLoopGain);
+    m_dllTau2 = LoopFilterTau2(m_config.dllNoiseBW, m_config.dllDampRatio);
     m_pllTau1 = LoopFilterTau1(m_config.pllNoiseBW, m_config.pllDampRatio, m_config.pllLoopGain);
-    m_pllTau2 = LoopFilterTau2(m_config.pllNoiseBW, m_config.pllDampRatio, m_config.pllLoopGain);
+    m_pllTau2 = LoopFilterTau2(m_config.pllNoiseBW, m_config.pllDampRatio);
 
     m_trackRequiredSamples = 1e-3 * m_config.signalConfig.samplingFreq;
 
     // Set configured flag
     m_configured = true;
 
-    cout << "Configured channel CID " << (unsigned int) m_channelID << endl;
+    cout << "Configured channel CID " << m_channelID << endl;
 }
 
 void Channel::resetChannel()
@@ -81,7 +81,6 @@ void Channel::resetCounters()
     m_iPromptSum = 0.0;
     m_qPromptSum = 0.0;
     m_nbPromptSum = 0;
-    m_codeCounter = 0;
     m_pdpnRatio = 0.0;
 }
 
@@ -116,7 +115,7 @@ void Channel::run(const int* rfdata, size_t size)
 
 void Channel::runAcquisition(const int* rfdata, size_t size)
 {
-    size_t samplesPerCode = m_config.signalConfig.samplingFreq * GPS_L1CA_CODE_SIZE_BITS / GPS_L1CA_CODE_FREQ;
+    size_t samplesPerCode = m_config.signalConfig.samplingFreq * m_config.signalConfig.codeLengthBits / m_config.signalConfig.codeFreqBasis;
 
     // Check if sufficient data in buffer
     size_t requiredSamples = samplesPerCode * m_config.cohIntegration * m_config.nonCohIntegration;
@@ -145,7 +144,7 @@ void Channel::runNoMapAcquisition(const int* rfdata, size_t size)
 
     // Perform signal search and peak finding in one
     NoMapPCPS(
-        rfdata, size, code+1, GPS_L1CA_CODE_SIZE_BITS, GPS_L1CA_CODE_FREQ,
+        rfdata, size, code + 1, m_config.signalConfig.codeLengthBits, m_config.signalConfig.codeFreqBasis,
         m_config.cohIntegration, m_config.nonCohIntegration, m_config.signalConfig.samplingFreq,
         0.0, m_config.dopplerRange, m_config.dopplerStep, &m_indexPeak, &m_acqMetric);
 
@@ -167,8 +166,8 @@ void Channel::runSignalSearch(const int* rfdata, size_t size, float* r_correlati
     const char* code = GPS_L1CA_CODES[m_satelliteID];
 
     PCPS(
-        rfdata, size, code+1, GPS_L1CA_CODE_SIZE_BITS, GPS_L1CA_CODE_FREQ,
-        m_config.cohIntegration, m_config.nonCohIntegration, m_config.signalConfig.samplingFreq, 
+        rfdata, size, code + 1, m_config.signalConfig.codeLengthBits, m_config.signalConfig.codeFreqBasis,
+        m_config.cohIntegration, m_config.nonCohIntegration, m_config.signalConfig.samplingFreq,
         0.0, m_config.dopplerRange, m_config.dopplerStep, r_correlation);
 
     return;
@@ -178,8 +177,8 @@ void Channel::runSignalSearch(const int* rfdata, size_t size, float* r_correlati
 
 void Channel::runPeakFinder(const float* acqCorrelationMap, size_t sizeMap)
 {
-    size_t samplesPerCode = m_config.signalConfig.samplingFreq * GPS_L1CA_CODE_SIZE_BITS / GPS_L1CA_CODE_FREQ;    
-    size_t samplesPerCodeChip = ceil((float) samplesPerCode / GPS_L1CA_CODE_SIZE_BITS); // Code per chip round up to the next integer
+    size_t samplesPerCode = m_config.signalConfig.samplingFreq * m_config.signalConfig.codeLengthBits / m_config.signalConfig.codeFreqBasis;
+    size_t samplesPerCodeChip = ceil((float) samplesPerCode / m_config.signalConfig.codeLengthBits); // Code per chip round up to the next integer
 
     // Find the correlation
     TwoCorrelationPeakComparison(acqCorrelationMap, sizeMap, samplesPerCode, samplesPerCodeChip, &m_indexPeak, &m_acqMetric);
@@ -191,7 +190,7 @@ void Channel::runPeakFinder(const float* acqCorrelationMap, size_t sizeMap)
 
 void Channel::postAcquisitionUpdate()
 {
-    size_t samplesPerCode = m_config.signalConfig.samplingFreq * GPS_L1CA_CODE_SIZE_BITS / GPS_L1CA_CODE_FREQ;  
+    size_t samplesPerCode = m_config.signalConfig.samplingFreq * m_config.signalConfig.codeLengthBits / m_config.signalConfig.codeFreqBasis;
 
     // Check if peak is above threshold
     if (m_acqMetric < m_config.acqThreshold) {
@@ -206,7 +205,7 @@ void Channel::postAcquisitionUpdate()
         m_codeOffset = (m_indexPeak % samplesPerCode) + 1;
         m_channelState = TRACKING;
 
-        cout << "PRN " << (unsigned int) m_satelliteID << " successfully acquired: " 
+        cout << "PRN " << m_satelliteID << " successfully acquired: " 
                 << m_carrierFrequency << ", " << m_codeOffset << ", " << m_acqMetric << endl;
     }
 
@@ -255,7 +254,7 @@ void Channel::runCorrelators(const int* rfdata)
     // This would need to be evaluated to decrease to float.
     double codeStep = m_codeFrequency / m_config.signalConfig.samplingFreq;
     EPL(
-        rfdata + (m_codeOffset*2), m_trackRequiredSamples, code, GPS_L1CA_CODE_SIZE_BITS+2, m_config.signalConfig.samplingFreq, 
+        rfdata + (m_codeOffset*2), m_trackRequiredSamples, code, m_config.signalConfig.codeLengthBits+2, m_config.signalConfig.samplingFreq, 
         m_carrierFrequency, m_remainingCarrier, m_remainingCode, codeStep, m_config.correlatorSpacing,
         m_correlatorsResults);
 
@@ -322,14 +321,13 @@ void Channel::postTrackingUpdate()
     double codeStep     = (m_codeFrequency / sampFreq);
     m_remainingCarrier -= m_carrierFrequency * TWO_PI * m_trackRequiredSamples / sampFreq;
     m_remainingCarrier  = fmod(m_remainingCarrier , TWO_PI);
-    m_remainingCode    += m_trackRequiredSamples * codeStep - GPS_L1CA_CODE_SIZE_BITS;
+    m_remainingCode    += m_trackRequiredSamples * codeStep - m_config.signalConfig.codeLengthBits;
     m_codeFrequency    -= m_codeError;
     m_carrierFrequency += m_phaseError;
     
     codeStep = (m_codeFrequency / sampFreq); // Update value
-    m_codeOffset += m_trackRequiredSamples - int(1e-3 * sampFreq); // TODO this is to have the same as python but might be wrong...
-    m_trackRequiredSamples = (int) ceil((GPS_L1CA_CODE_SIZE_BITS - m_remainingCode) / codeStep);
+    m_codeOffset += m_trackRequiredSamples - (int)(1e-3 * sampFreq); // TODO this is to have the same as python but might be wrong...
+    m_trackRequiredSamples = (int) ceil((m_config.signalConfig.codeLengthBits - m_remainingCode) / codeStep);
 
-    m_codeCounter += 1;
     return;
 }

@@ -82,7 +82,7 @@ double LoopFilterTau1(double loopNoiseBandwidth, double dampingRatio, double loo
 
 // --------------------------------------------------------------------------------------------------------------------
 
-double LoopFilterTau2(double loopNoiseBandwidth, double dampingRatio, double loopGain)
+double LoopFilterTau2(double loopNoiseBandwidth, double dampingRatio)
 {
     double Wn = loopNoiseBandwidth * 8.0 * dampingRatio / (4.0 * dampingRatio*dampingRatio + 1);
     double tau2 = 2.0 * dampingRatio / Wn;

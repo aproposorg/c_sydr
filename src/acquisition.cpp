@@ -9,9 +9,15 @@ template <typename T>
 size_t FindMaxIndex(const T* array, size_t size)
 {
     size_t idxMax{};
+    T max {array[idxMax]};
 
     for (size_t i{1}; i < size; ++i)
-        idxMax = array[idxMax] < array[i] ? i : idxMax;
+    {
+        if (max < array[i]) {
+            idxMax = i;
+            max = array[i];
+        }
+    }
 
     return idxMax;
 }
@@ -22,13 +28,16 @@ template <typename T>
 size_t FindMaxIndexWithExclude(const T* array, size_t size, size_t excludeIdx, size_t excludeChipSize)
 {
     size_t idxMax = excludeIdx == 0 ? 1 : 0;
+    T max {array[idxMax]};
 
     for (size_t i{idxMax + 1}; i < size; ++i)
     {
         if ((size_t)abs((int)(excludeIdx - i)) < excludeChipSize)
             continue;
-
-        idxMax = array[idxMax] < array[i] ? i : idxMax;
+        if (max < array[i]) {
+            idxMax = i;
+            max = array[i];
+        }
     }
 
     return idxMax;
@@ -82,7 +91,7 @@ void PCPS(
     double codeUpsampled[samplesPerCode];
     complex<double> codeFFT[samplesPerCode];
 
-    upsampleCode(code, GPS_L1CA_CODE_SIZE_BITS, GPS_L1CA_CODE_FREQ, samplingFrequency, codeUpsampled); // Upsampling code to sampling frequency
+    upsampleCode(code, sizeCode, codeFrequency, samplingFrequency, codeUpsampled); // Upsampling code to sampling frequency
     rfft(codeUpsampled, samplesPerCode); // in-place FFT
 
     // Need to reconstruct the real-to-complex FFT, as pocket FFT only compute the real part
@@ -185,7 +194,7 @@ void NoMapPCPS(
 {
     // Initialise some variables
     const size_t samplesPerCode = samplingFrequency * sizeCode / codeFrequency;
-    const size_t samplesPerCodeChip = ceil((double)samplesPerCode / GPS_L1CA_CODE_SIZE_BITS);
+    const size_t samplesPerCodeChip = ceil((double)samplesPerCode / sizeCode);
     const size_t dopplerBins = dopplerRange * 2 / dopplerStep + 1;
 
     // Allocate buffers before the FFT
@@ -196,7 +205,7 @@ void NoMapPCPS(
     double codeUpsampled[samplesPerCode];
     complex<double> codeFFT[samplesPerCode];
 
-    upsampleCode(code, GPS_L1CA_CODE_SIZE_BITS, GPS_L1CA_CODE_FREQ, samplingFrequency, codeUpsampled); // Upsampling code to sampling frequency
+    upsampleCode(code, sizeCode, codeFrequency, samplingFrequency, codeUpsampled); // Upsampling code to sampling frequency
     rfft(codeUpsampled, samplesPerCode);                                                               // in-place FFT
 
     // Need to reconstruct the real-to-complex FFT, as pocket FFT only compute the real part

@@ -20,7 +20,7 @@ double PLL_costa(double, double);
 
 // Discriminators
 double LoopFilterTau1(double, double, double);
-double LoopFilterTau2(double, double, double);
+double LoopFilterTau2(double, double);
 double BorreLoopFilter(double, double, double, double, double);
 
 // Indicators

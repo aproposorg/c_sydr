@@ -37,11 +37,8 @@ private:
     double m_phaseError;
     double m_dllTau1;
     double m_dllTau2;
-    double m_dllPDI;
     double m_pllTau1;
     double m_pllTau2;
-    double m_pllPDI;
-    unsigned m_codeCounter;
 
     // Indicators
     double m_pllLock;
@@ -63,14 +60,14 @@ private:
 public:
     // Constructor
     Channel();
-    Channel(char, st_ChannelConfig);
+    Channel(int, st_ChannelConfig);
 
     // Destructor
     ~Channel();
 
     // Configuration
-    void setSatellite(unsigned char);
-    void configure(char, st_ChannelConfig);
+    void setSatellite(unsigned);
+    void configure(int, st_ChannelConfig);
 
     // General processing
     void run(const int* _rfdata, size_t size);

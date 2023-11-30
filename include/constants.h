@@ -101,10 +101,10 @@ constexpr st_ChannelConfig DefaultChannelConfig {
  * Project Manager: Junchan Lee
  * Institution: Lassonde School of Engineering, York University, Canada.
  **/
-const short G2Shifts[33] = {0, 5, 6, 7, 8, 17, 18, 139, 140, 141,
-                            251, 252, 254, 255, 256, 257, 258, 469,
-                            470, 471, 472, 473, 474, 509, 512, 513,
-                            514, 515, 516, 859, 860, 861, 862};
+constexpr short G2Shifts[33] = {0, 5, 6, 7, 8, 17, 18, 139, 140, 141,
+                                251, 252, 254, 255, 256, 257, 258, 469,
+                                470, 471, 472, 473, 474, 509, 512, 513,
+                                514, 515, 516, 859, 860, 861, 862};
 
 template<unsigned N>
 struct st_SatConfigs {
